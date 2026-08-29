@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  vim.o.relativenumber = true
+  -- vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -272,7 +272,6 @@ do
   --
   --  To update plugins, run
   --    :lua vim.pack.update()
-  -- hi
   --
   --  Throughout the rest of the config there will be examples
   --  of how to install and configure plugins using `vim.pack`.
@@ -383,22 +382,39 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --
+  -- Tokyoknight Theme
+
   vim.pack.add { gh 'folke/tokyonight.nvim' }
   ---@diagnostic disable-next-line: missing-fields
   require('tokyonight').setup {
     styles = {
-      comments = { italic = false }, -- Disable italics in comments
+      comments = { italic = true }, -- i like italics :)
+    },
+  }
+
+
+  -- Dracula Theme
+
+  vim.pack.add { gh 'Mofiqul/dracula.nvim' }
+  ---@diagnostic disable-next-line: missing-fields
+  require('dracula').setup {
+    styles = {
+      comments = { italic = true },
     },
   }
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'dracula'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
   require('todo-comments').setup { signs = false }
+
+  -- TODO: Check the mini.nvim plugin
+
 
   -- [[ mini.nvim ]]
   --  A collection of various small independent plugins/modules
@@ -410,6 +426,8 @@ do
     -- Used for backwards compatibility with plugins that require `nvim-web-devicons` (e.g. telescope.nvim)
     MiniIcons.mock_nvim_web_devicons()
   end
+
+
 
   -- Better Around/Inside textobjects
   --
@@ -448,6 +466,7 @@ do
 
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
+  --
 end
 
 -- ============================================================
@@ -530,6 +549,8 @@ do
     group = vim.api.nvim_create_augroup('telescope-lsp-attach', { clear = true }),
     callback = function(event)
       local buf = event.buf
+
+      -- NOTE: To jump back press <C-t>
 
       -- Find references for the word under your cursor.
       vim.keymap.set('n', 'grr', builtin.lsp_references, { buffer = buf, desc = '[G]oto [R]eferences' })
@@ -693,19 +714,13 @@ do
   --  See `:help lsp-config` for information about keys and how to configure
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    clangd = {},
-    -- gopls = {},
-    -- pyright = {},
-    -- rust_analyzer = {},
-    --
-    -- Some languages (like typescript) have entire language plugins that can be useful:
-    --    https://github.com/pmizio/typescript-tools.nvim
-    --
-    -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
+
+    -- for c++
+    clangd = {
+      vim.lsp.inlay_hint.enable(true)
+    },
 
     stylua = {}, -- Used to format Lua code
-
     -- Special Lua Config, as recommended by neovim help docs
     lua_ls = {
       on_init = function(client)
@@ -853,7 +868,7 @@ do
       -- <c-k>: Toggle signature help
       --
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
-      preset = 'default',
+      preset = 'super-tab',
 
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
       --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -869,7 +884,14 @@ do
       -- By default, you may press `<c-space>` to show the documentation.
       -- Optionally, set `auto_show = true` to show the documentation after a delay.
       documentation = { auto_show = false, auto_show_delay_ms = 500 },
+      
+      
+      
+
+
     },
+
+
 
     sources = {
       default = { 'lsp', 'path', 'snippets' },
@@ -888,6 +910,9 @@ do
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
+
+  
+
   }
 end
 
