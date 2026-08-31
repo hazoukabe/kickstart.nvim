@@ -300,8 +300,13 @@ do
       local kind = ev.data.kind
       if kind ~= 'install' and kind ~= 'update' then return end
 
-      if name == 'telescope-fzf-native.nvim' and vim.fn.executable 'make' == 1 then
-        run_build(name, { 'make' }, ev.data.path)
+      if name == 'telescope-fzf-native.nvim' then
+        if vim.fn.executable 'make' == 1 then
+          run_build(name, { 'make' }, ev.data.path)
+        elseif vim.fn.executable 'cmake' == 1 then
+          run_build(name, { 'cmake', '-S.', '-Bbuild', '-DCMAKE_BUILD_TYPE=Release' }, ev.data.path)
+          run_build(name, { 'cmake', '--build', 'build', '--config', 'Release', '--target', 'install' }, ev.data.path)
+        end
         return
       end
 
@@ -370,7 +375,7 @@ do
     -- Document existing key chains
     spec = {
       { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
-      { '<leader>t', group = '[T]oggle' },
+      { '<leader>t', group = '[T]abs' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
@@ -382,39 +387,16 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  --
-  -- Tokyoknight Theme
-
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = true }, -- i like italics :)
-    },
-  }
-
-
-  -- Dracula Theme
-
-  vim.pack.add { gh 'Mofiqul/dracula.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('dracula').setup {
-    styles = {
-      comments = { italic = true },
-    },
-  }
-
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'dracula'
+  -- vim.cmd.colorscheme 'dracula'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
   require('todo-comments').setup { signs = false }
 
   -- TODO: Check the mini.nvim plugin
-
 
   -- [[ mini.nvim ]]
   --  A collection of various small independent plugins/modules
@@ -426,8 +408,6 @@ do
     -- Used for backwards compatibility with plugins that require `nvim-web-devicons` (e.g. telescope.nvim)
     MiniIcons.mock_nvim_web_devicons()
   end
-
-
 
   -- Better Around/Inside textobjects
   --
@@ -498,17 +478,26 @@ do
   -- Telescope picker. This is really useful to discover what Telescope can
   -- do as well as how to actually do it!
 
+  local cmake_tools_plugins = {
+    gh 'nvim-lua/plenary.nvim',
+    gh 'Civitasv/cmake-tools.nvim',
+  }
+
+  vim.pack.add(cmake_tools_plugins)
+  require('cmake-tools').setup {}
+
   ---@type (string|vim.pack.Spec)[]
   local telescope_plugins = {
     gh 'nvim-lua/plenary.nvim',
     gh 'nvim-telescope/telescope.nvim',
     gh 'nvim-telescope/telescope-ui-select.nvim',
   }
-  if vim.fn.executable 'make' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
+  if vim.fn.executable 'make' == 1 or vim.exectuable 'cmake' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
 
   -- NOTE: You can install multiple plugins at once
   vim.pack.add(telescope_plugins)
 
+  -- This plugin allows you to pick themes from the colorscheme picker and use them permanently
   -- See `:help telescope` and `:help telescope.setup()`
   require('telescope').setup {
     -- You can put your default mappings / updates / etc. in here
@@ -698,14 +687,6 @@ do
           end,
         })
       end
-
-      -- The following code creates a keymap to toggle inlay hints in your
-      -- code, if the language server you are using supports them
-      --
-      -- This may be unwanted, since they displace some of your code
-      if client and client:supports_method('textDocument/inlayHint', event.buf) then
-        map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
-      end
     end,
   })
 
@@ -717,8 +698,10 @@ do
 
     -- for c++
     clangd = {
-      vim.lsp.inlay_hint.enable(true)
+      vim.lsp.inlay_hint.enable(true),
     },
+
+    neocmake = {},
 
     stylua = {}, -- Used to format Lua code
     -- Special Lua Config, as recommended by neovim help docs
@@ -884,14 +867,7 @@ do
       -- By default, you may press `<c-space>` to show the documentation.
       -- Optionally, set `auto_show = true` to show the documentation after a delay.
       documentation = { auto_show = false, auto_show_delay_ms = 500 },
-      
-      
-      
-
-
     },
-
-
 
     sources = {
       default = { 'lsp', 'path', 'snippets' },
@@ -910,9 +886,6 @@ do
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
-
-  
-
   }
 end
 
@@ -930,7 +903,7 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'cpp' }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -993,16 +966,18 @@ do
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug'
-  -- require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- require 'custom.plugins'
+  --
+
+  require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.indent_line'
+  require 'custom.plugins'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`

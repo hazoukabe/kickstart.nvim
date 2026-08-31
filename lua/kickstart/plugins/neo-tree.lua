@@ -7,7 +7,9 @@ vim.pack.add {
   'https://github.com/MunifTanjim/nui.nvim',
 }
 
-vim.keymap.set('n', '\\', '<Cmd>Neotree reveal<CR>', { desc = 'NeoTree reveal', silent = true })
+
+vim.keymap.set('n', '<A-²>', '<Cmd>Neotree toggle<CR>')
+vim.keymap.set('n', '²', '<Cmd>Neotree reveal<CR>')
 
 require('neo-tree').setup {
   filesystem = {
