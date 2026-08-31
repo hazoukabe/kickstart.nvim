@@ -18,7 +18,9 @@ local telescope_colorscheme_persist = {
 }
 
 vim.pack.add(telescope_colorscheme_persist)
-require('telescope-colorscheme-persist').setup { keybind = '<leader>st' }
+require('telescope-colorscheme-persist').setup { 
+  keybind = '<leader>st'
+}
 
 vim.pack.add{"https://github.com/meanderingprogrammer/render-markdown.nvim"}
 require("render-markdown").setup{}

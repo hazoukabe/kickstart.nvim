@@ -171,6 +171,8 @@ do
   -- instead raise a dialog asking if you wish to save the current file(s)
   -- See `:help 'confirm'`
   vim.o.confirm = true
+
+  vim.opt.shell = 'nu'
 end
 
 -- ============================================================
@@ -492,7 +494,7 @@ do
     gh 'nvim-telescope/telescope.nvim',
     gh 'nvim-telescope/telescope-ui-select.nvim',
   }
-  if vim.fn.executable 'make' == 1 or vim.exectuable 'cmake' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
+  if vim.fn.executable 'make' == 1 or vim.fn.executable 'cmake' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
 
   -- NOTE: You can install multiple plugins at once
   vim.pack.add(telescope_plugins)
@@ -508,7 +510,13 @@ do
     --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
     --   },
     -- },
-    -- pickers = {}
+    pickers = {
+      buffers = {
+        initial_mode = 'normal',
+      },
+
+    },
+
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
     },

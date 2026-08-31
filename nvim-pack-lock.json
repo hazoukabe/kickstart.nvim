@@ -96,6 +96,10 @@
       "rev": "534fc370ab67df14efee9c6ac4440015ac197ef6",
       "src": "https://github.com/tingey21/telescope-colorscheme-persist.nvim"
     },
+    "telescope-fzf-native.nvim": {
+      "rev": "b25b749b9db64d375d782094e2b9dce53ad53a40",
+      "src": "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
+    },
     "telescope-tabs": {
       "rev": "777b1f630f3d6a12a2e71635a82581c988d6da2e",
       "src": "https://codeberg.org/LukasPietzschmann/telescope-tabs"
